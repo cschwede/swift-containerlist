@@ -22,6 +22,9 @@ Of course this will not scale infinitely, but it only affects GET account
 requests from non-owners thus it might be a feasible solution. Additionally
 the requests are memcached lowering the load impact.
 
+To prevent abuse repeated requests within the same account but with a 
+different (uncached) path are rate limited using eventlet.sleep(5).
+
 
 Quick Install
 -------------
