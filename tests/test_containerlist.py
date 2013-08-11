@@ -12,7 +12,11 @@
 # limitations under the License.
 
 import json
+import mock
+import time
 import unittest
+
+import eventlet
 
 from swift.common.swob import Request
 
@@ -88,6 +92,17 @@ class TestContainerList(unittest.TestCase):
         self.assertIn('two', res.body)
         self.assertNotIn('three', res.body)
         self.assertEquals(res.status_int, 200)
+
+        # Modified request, should be delayed by eventlet.sleep
+        eventlet.sleep = mock.Mock()
+        req = Request.blank('/v1/a?dummy',
+                            environ={'REQUEST_METHOD': 'GET',
+                                     'swift.cache': cache,
+                                     'REMOTE_USER': 'guest:user,guest'
+                                     })
+        res = req.get_response(app)
+        self.assertEquals(res.status_int, 200)
+        self.assertTrue(eventlet.sleep.called)
 
     def test_unauthorized(self):
         """ Simply check if body is returned unmodified """

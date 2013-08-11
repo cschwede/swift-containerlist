@@ -20,6 +20,9 @@
 
 import json
 import copy
+import time
+
+import eventlet
 
 from swift.common.swob import wsgify
 from swift.common.utils import split_path, cache_from_env
@@ -39,6 +42,7 @@ class AccountGuestBroker(object):
         self.request = request
         self.groups = groups
         self.memcache_client = None
+        self.min_sleep = 5
 
     def get_info(self):
         """ This is basically a dummy. """
@@ -63,6 +67,14 @@ class AccountGuestBroker(object):
         containers = self.memcache_client.get(memcache_key)
         if containers:
             return containers
+        
+        # No cached result? -> ratelimit request to prevent abuse
+        memcache_key_sleep = 'containerlist_sleep/%s' % self.account
+        last_request_time = self.memcache_client.get(memcache_key_sleep)
+        if last_request_time:
+            last_request = time.time() - last_request_time
+            if last_request < self.min_sleep:
+                eventlet.sleep(self.min_sleep - last_request)
 
         req = make_pre_authed_request(self.request.environ, 'GET', path)
         resp = req.get_response(self.app)
@@ -81,6 +93,7 @@ class AccountGuestBroker(object):
                                   0))
 
         self.memcache_client.set(memcache_key, containers)
+        self.memcache_client.set(memcache_key_sleep, time.time()) 
         return containers
 
     @property
