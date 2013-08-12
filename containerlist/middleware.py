@@ -68,17 +68,18 @@ class AccountGuestBroker(object):
         if containers is not None:
             return containers
         
+        req = make_pre_authed_request(self.request.environ, 'GET', path)
+        resp = req.get_response(self.app)
+        tmp_containers = json.loads(resp.body)
+    
         # No cached result? -> ratelimit request to prevent abuse
         memcache_key_sleep = 'containerlist_sleep/%s' % self.account
         last_request_time = self.memcache_client.get(memcache_key_sleep)
-        if last_request_time:
+        if last_request_time and len(tmp_containers) > 0:
             last_request = time.time() - last_request_time
             if last_request < self.min_sleep:
                 eventlet.sleep(self.min_sleep - last_request)
 
-        req = make_pre_authed_request(self.request.environ, 'GET', path)
-        resp = req.get_response(self.app)
-        tmp_containers = json.loads(resp.body)
 
         containers = []
         for container in tmp_containers:
