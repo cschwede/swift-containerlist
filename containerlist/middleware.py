@@ -55,10 +55,18 @@ class AccountGuestBroker(object):
 
     def list_containers_iter(self, *args, **kwargs):
         """ Returns a list of containers the user has access to """
+        
+        try:
+            version, account = self.request.split_path(2, 2)
+        except ValueError:
+            pass
 
-        path = self.request.environ.get('PATH_INFO')
-        path += '?' + self.request.environ.get('QUERY_STRING', '')
-        path += '&format=json'  # overrides other format=XYZ elements
+        path = "/%s/%s?format=json" % (version, account)
+        
+        for key in ('limit', 'marker', 'end_marker', 'prefix', 'delimiter'):
+            value = self.request.params.get(key)
+            if value:
+                path+= '&%s=%s' % (key, value)
 
         if self.memcache_client is None:
             self.memcache_client = cache_from_env(self.request.environ)
@@ -84,7 +92,9 @@ class AccountGuestBroker(object):
         containers = []
         for container in tmp_containers:
             tmp_env = copy.copy(self.request.environ)
-            tmp_env['PATH_INFO'] += '/' + container['name'].encode("utf8")
+            container_name = container['name'].encode("utf8")
+            path_info = "/%s/%s/%s" % (version, account, container_name)
+            tmp_env['PATH_INFO'] = path_info
             container_info = get_container_info(tmp_env, self.app)
             acl = (container_info.get('read_acl') or '').split(',')
             if (list(set(self.groups) & set(acl))):

@@ -78,7 +78,7 @@ class TestContainerList(unittest.TestCase):
         self.assertEquals(res.status_int, 200)
 
         # Re-request - should be cached now
-        memcache_key = "containerlist/v1/a?&format=json['guest:user', 'guest']"
+        memcache_key = "containerlist/v1/a?format=json['guest:user', 'guest']"
         val = cache.get(memcache_key)
         self.assertEquals(val, [(u'one', 0, 0, 0), (u'two', 1, 1, 0)])
 
@@ -95,7 +95,7 @@ class TestContainerList(unittest.TestCase):
 
         # Modified request, should be delayed by eventlet.sleep
         eventlet.sleep = mock.Mock()
-        req = Request.blank('/v1/a?dummy',
+        req = Request.blank('/v1/a?marker=x',
                             environ={'REQUEST_METHOD': 'GET',
                                      'swift.cache': cache,
                                      'REMOTE_USER': 'guest:user,guest'
