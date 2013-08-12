@@ -127,7 +127,9 @@ class ContainerListMiddleware(object):
             return self.app
 
         groups = (request.remote_user or '').split(',')
-        non_owner = account not in groups and groups != ['']
+        non_owner = ('.reseller_admin' not in groups
+                     and account not in groups
+                     and groups != [''])
         if account and not container and non_owner and request.method == 'GET':
             content_type, _error = account_listing_content_type(request)
             broker = AccountGuestBroker(self.app, request, account, groups)
