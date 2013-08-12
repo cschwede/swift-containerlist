@@ -92,7 +92,7 @@ class AccountGuestBroker(object):
                                   container['bytes'],
                                   0))
 
-        self.memcache_client.set(memcache_key, containers)
+        self.memcache_client.set(memcache_key, containers, time=60)
         self.memcache_client.set(memcache_key_sleep, time.time()) 
         return containers
 
