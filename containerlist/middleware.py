@@ -83,7 +83,7 @@ class AccountGuestBroker(object):
         containers = []
         for container in tmp_containers:
             tmp_env = copy.copy(self.request.environ)
-            tmp_env['PATH_INFO'] += '/' + container['name']
+            tmp_env['PATH_INFO'] += '/' + container['name'].encode("utf8")
             container_info = get_container_info(tmp_env, self.app)
             acl = (container_info.get('read_acl') or '').split(',')
             if (list(set(self.groups) & set(acl))):
