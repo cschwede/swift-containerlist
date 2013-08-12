@@ -65,7 +65,7 @@ class AccountGuestBroker(object):
 
         memcache_key = 'containerlist%s%s' % (path, str(self.groups))
         containers = self.memcache_client.get(memcache_key)
-        if containers:
+        if containers is not None:
             return containers
         
         # No cached result? -> ratelimit request to prevent abuse
