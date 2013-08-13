@@ -22,7 +22,7 @@ setup(
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python :: 2.6',
         'Environment :: No Input/Output (Daemon)'],
-    dependency_links = ['http://github.com/openstack/swift/tarball/master#egg=swift-1.9.0'],
+    dependency_links=['http://github.com/openstack/swift/tarball/master#egg=swift-1.9.0'],
     install_requires=['swift'],
     entry_points={
         'paste.filter_factory': ['%s=%s' % (name, entry_point)]

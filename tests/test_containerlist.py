@@ -11,9 +11,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#pylint:disable=E1101
+
 import json
 import mock
-import time
 import unittest
 
 import eventlet
