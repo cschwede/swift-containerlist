@@ -28,8 +28,13 @@ from swift.common.swob import wsgify
 from swift.common.utils import split_path, cache_from_env
 from swift.common.wsgi import make_pre_authed_request
 from swift.proxy.controllers.base import get_container_info
-from swift.account.utils import account_listing_response, \
-    account_listing_content_type
+
+try:
+    from swift.account.utils import account_listing_response, \
+        account_listing_content_type
+except ImportError:
+    from swift_account_utils import account_listing_response, \
+        account_listing_content_type
 
 
 class AccountGuestBroker(object):
