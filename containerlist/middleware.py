@@ -134,6 +134,7 @@ class ContainerListMiddleware(object):
         groups = (request.remote_user or '').split(',')
         non_owner = ('.reseller_admin' not in groups
                      and account not in groups
+                     and '.wsgi.pre_authed' not in groups
                      and groups != [''])
         if account and not container and non_owner and request.method == 'GET':
             content_type, _error = account_listing_content_type(request)
